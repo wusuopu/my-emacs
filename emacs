@@ -1,4 +1,5 @@
 (add-to-list 'load-path "~/.emacs.d")
+(add-to-list 'load-path "~/.emacs.d/my-plugin")
 ;; (let ((default-directory "~/.emacs.d"))
 ;;   (normal-top-level-add-subdirs-to-load-path))
 
@@ -36,7 +37,7 @@
 (require 'autopair)
 (autopair-global-mode)
 
-;; 
+;; window编号， C-x C-j n 跳到对应window
 (require 'window-number)
 (window-number-mode 1)
 
@@ -59,6 +60,7 @@
 
 (require 'flymake-python-pyflakes)
 (add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
+(setq flymake-python-pyflakes-executable "flake8")
 (setq flymake-python-pyflakes-extra-arguments '("--ignore=W806"))
 
 (require 'flymake-ruby)
@@ -66,6 +68,22 @@
 
 (require 'flymake-shell)
 (add-hook 'sh-set-shell-hook 'flymake-shell-load)
+
+(custom-set-faces
+ '(flymake-errline ((((class color)) (:underline "red"))))
+ '(flymake-warnline ((((class color)) (:underline "yellow")))))
+
+;;; 设置flymake-cursor 延时时间
+(custom-set-variables
+     '(help-at-pt-timer-delay 0.9)
+     '(help-at-pt-display-when-idle '(flymake-overlay)))
+;;; 查看下一个错误
+(defun my-flymake-show-next-error()
+   (interactive)
+   (flymake-goto-next-error)
+   (flymake-display-err-menu-for-current-line)
+)
+(local-set-key "\C-c\C-v" 'my-flymake-show-next-error)
 
 ;; 自动补全C
 (require 'auto-complete-c-headers)
@@ -91,14 +109,82 @@
 ;; inf-mongo: run mongodb shell
 (require 'inf-mongo)
 
+;; tabbar
+(tabbar-mode 1)
+(global-set-key "\C-x\C-n" 'tabbar-forward-tab)
+(global-set-key "\C-x\C-p" 'tabbar-backward-tab)
+
+;; ecb Emacs Code Browser  需要安装 cedet
+;; ecb-activate   ecb-deactivate
+(require 'ecb-autoloads)
+(setq ecb-examples-bufferinfo-buffer-name nil)
+
+;; yasnippet
+(require 'yasnippet)
+(yas-global-mode 1)
+
+;; pep8
+;; (add-hook 'before-save-hook 'py-autopep8-before-save)
+
+;; 多终端
+(require 'multi-term)
+
+(add-to-list 'load-path "~/.emacs.d/my-plugin/powerline")
+(require 'powerline)
+(defun graphic-powerline-config ()  
+  "powerline setting for graphic"  
+  (interactive)  
+  (progn  
+   (setq powerline-arrow-shape 'arrow)  
+   (custom-set-faces  
+    '(mode-line ((t (:foreground "white" :background "#0044cc" :box nil))))  
+    '(mode-line-inactive ((t (:foreground "white" :background "#262626" :box nil))))  
+    )  
+   (setq powerline-color1 "#0088cc")  
+   (setq powerline-color2 "white")  
+   )  
+)  
+  
+(defun terminal-powerline-config()  
+   " powerline setting for terminal"  
+   (interactive)  
+   (setq powerline-arrow-shape 'arrow)  
+   (setq powerline-color1 "grey22")  
+   (setq powerline-color2 "grey22")   
+   (custom-set-faces  
+    '(mode-line ((t (:foreground "grey44" :background "grey22" :box nil))))  
+    '(mode-line-inactive ((t (:foreground "grey22" :background "grey44" :box nil))))  
+    )
+)  
+  
+(graphic-powerline-config)
+;;  "根据是否图形界面加载配置"  
+;;(if (display-graphic-p)  
+;;    (graphic-powerline-config)  
+;;  (terminal-powerline-config))
+
+
+
+; python.el
+(require 'python)
+(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+(setq 
+  python-shell-interpreter "ipython2"
+  python-shell-interpreter-args ""
+  python-shell-prompt-regexp "In \\[[0-9]+\\]: "
+  python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
+  python-shell-completion-setup-code
+  "from IPython.core.completerlib import module_completion"
+  python-shell-completion-module-string-code
+  "';'.join(module_completion('''%s'''))\n"
+  python-shell-completion-string-code
+ "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Line-by-Line Scrolling
 (setq scroll-step 1)
-
-;; hide toolbar menubar scrollbar
-(tool-bar-mode 0)
-(menu-bar-mode 0)
-(scroll-bar-mode 0)
-
 
 ;; Highlight Current Line
 (global-hl-line-mode 1)
@@ -144,39 +230,21 @@
 (set-face-background 'region    "slate blue")
 (set-face-background 'secondary-selection "turquoise")
 
-;;; 设置鼠标形状和颜色
-;(let ((mpointer (x-get-resource "*mpointer"
-;                     "*emacs*mpointer")))
-;  (if (eq mpointer nil)
-;      (setq mpointer "132"))
-;  (setq x-pointer-shape (string-to-int mpointer))
-;  (set-mouse-color "white"))
-
+;; mode line
 ;;; 模式行
-(setq mode-line-system-identification
-  (substring (system-name) 0
-           (string-match "\\..+" (system-name))
-  )
-)
+(display-time-mode 1)
+(setq display-time-format "%m/%d %T")
 (setq default-mode-line-format
-      (list ""
-              'mode-line-modified
-        "<"
-        'mode-line-system-identification
-        "> "
-        "%14b"
-        " "
-        'default-directory
-        " "
-        "%[("
-        'mode-name
-        'minor-mode-alist
-        "%n"
-        'mode-line-process
-        ")%]--"
-        "(%l %c)--"
+      (list "%*%+%& "
+        'buffer-file-type
+        "%Z<" (getenv "USER") ">"
+        "%f "
+        ;"[" 'display-time-string "]"
+        " " "%[(" 'mode-name 'minor-mode-alist "%n" 'mode-line-process ")%]--"
+        "%I (%l %c)--"
         '(-3 . "%P")
-        "-%-")
+        "-%-"
+      )
 )
 (setq mode-line-format default-mode-line-format)
 
@@ -196,3 +264,8 @@
 ;;; Rebind 'C-x C-b'
 (global-set-key "\C-x\C-b" 'buffer-menu)
 
+
+;; hide toolbar menubar scrollbar
+(tool-bar-mode 0)
+(menu-bar-mode 0)
+(scroll-bar-mode 0)
