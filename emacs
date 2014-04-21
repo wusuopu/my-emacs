@@ -27,6 +27,11 @@
 (mmm-add-group
  'fancy-html
  '(
+         (html-php-tagged
+                :submode php-mode
+                :face mmm-code-submode-face
+                :front "<[?]php"
+                :back "[?]>")
          (html-css-attribute
                 :submode css-mode
                 :face mmm-declaration-submode-face
