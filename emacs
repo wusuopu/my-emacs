@@ -23,6 +23,23 @@
 
 ;; mmm-mode
 (require 'mmm-mode)
+(setq mmm-global-mode 'maybe)
+(mmm-add-group
+ 'fancy-html
+ '(
+         (html-css-attribute
+                :submode css-mode
+                :face mmm-declaration-submode-face
+                :front "style=\""
+                :back "\"")))
+(add-to-list 'auto-mode-alist '("\\.inc\\'" . html-mode))
+(add-to-list 'auto-mode-alist '("\\.phtml\\'" . html-mode))
+(add-to-list 'auto-mode-alist '("\\.php[34]?\\'" . html-mode))
+(add-to-list 'auto-mode-alist '("\\.[sj]?html?\\'" . html-mode))
+(add-to-list 'auto-mode-alist '("\\.jsp\\'" . html-mode))
+(add-to-list 'mmm-mode-ext-classes-alist '(html-mode nil html-js))
+(add-to-list 'mmm-mode-ext-classes-alist '(html-mode nil html-css))
+(add-to-list 'mmm-mode-ext-classes-alist '(html-mode nil fancy-html))
 
 ;; evil 模拟vim
 (require 'evil)
@@ -70,13 +87,24 @@
 (add-hook 'sh-set-shell-hook 'flymake-shell-load)
 
 (custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(flymake-errline ((((class color)) (:underline "red"))))
- '(flymake-warnline ((((class color)) (:underline "yellow")))))
+ '(flymake-warnline ((((class color)) (:underline "yellow"))))
+ '(mode-line ((t (:foreground "white" :background "#0044cc" :box nil))))
+ '(mode-line-inactive ((t (:foreground "white" :background "#262626" :box nil)))))
 
 ;;; 设置flymake-cursor 延时时间
 (custom-set-variables
-     '(help-at-pt-timer-delay 0.9)
-     '(help-at-pt-display-when-idle '(flymake-overlay)))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ecb-options-version "2.40")
+ '(help-at-pt-display-when-idle (quote (flymake-overlay)) nil (help-at-pt))
+ '(help-at-pt-timer-delay 0.9))
 ;;; 查看下一个错误
 (defun my-flymake-show-next-error()
    (interactive)
@@ -113,6 +141,19 @@
 (tabbar-mode 1)
 (global-set-key "\C-x\C-n" 'tabbar-forward-tab)
 (global-set-key "\C-x\C-p" 'tabbar-backward-tab)
+
+(require 'cedet)
+(global-ede-mode t) 
+;;;; Helper tools.
+(custom-set-variables
+  '(semantic-default-submodes (quote (
+         global-semantic-decoration-mode global-semantic-idle-completions-mode
+         global-semantic-idle-scheduler-mode global-semantic-idle-summary-mode
+         global-semantic-mru-bookmark-mode)))
+  '(semantic-idle-scheduler-idle-time 3))
+(semantic-mode)
+
+(require 'semantic/ia)
 
 ;; ecb Emacs Code Browser  需要安装 cedet
 ;; ecb-activate   ecb-deactivate
@@ -183,6 +224,8 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
+;; 默认字体
+(set-default-font "Monospace-9") 
 ;; Line-by-Line Scrolling
 (setq scroll-step 1)
 
