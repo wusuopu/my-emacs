@@ -156,9 +156,9 @@
          global-semantic-idle-scheduler-mode global-semantic-idle-summary-mode
          global-semantic-mru-bookmark-mode)))
   '(semantic-idle-scheduler-idle-time 3))
-(semantic-mode)
+;; (semantic-mode)
 
-(require 'semantic/ia)
+;; (require 'semantic/ia)
 
 ;; ecb Emacs Code Browser  需要安装 cedet
 ;; ecb-activate   ecb-deactivate
@@ -225,6 +225,12 @@
   "';'.join(module_completion('''%s'''))\n"
   python-shell-completion-string-code
  "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
+
+;; markdown
+(autoload 'markdown-mode "markdown-mode"
+  "Major mode for editing Markdown files" t)
+(add-to-list 'auto-mode-alist '("\\.markdown\\'". markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'". markdown-mode))
 
 
 
